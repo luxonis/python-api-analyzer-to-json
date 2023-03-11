@@ -63,25 +63,13 @@ def build_json(json_arr, documentables: List[Documentable]):
 
     build_json(obj["children"], doc.contents.values())
 
-    match doc.kind:
-      case DocumentableKind.CLASS:
-        cls: Class = doc
-        obj["bases"] = cls.bases
-      case DocumentableKind.FUNCTION:
-        serialize_function(obj, doc)
-      case DocumentableKind.METHOD:
-        serialize_function(obj, doc)
-      case DocumentableKind.ATTRIBUTE:
-        serialize_attribute(obj, doc)
-      case DocumentableKind.CONSTANT:
-        serialize_attribute(obj, doc)
-      case DocumentableKind.VARIABLE:
-        serialize_attribute(obj, doc)
-      case DocumentableKind.TYPE_ALIAS:
-        serialize_attribute(obj, doc)
-      case DocumentableKind.TYPE_VARIABLE:
-        serialize_attribute(obj, doc)
-        
+    if doc.kind is DocumentableKind.CLASS:
+      cls: Class = doc
+      obj["bases"] = cls.bases
+    elif doc.kind is DocumentableKind.FUNCTION or doc.kind is DocumentableKind.METHOD:
+      serialize_function(obj, doc)
+    elif doc.kind is DocumentableKind.ATTRIBUTE or doc.kind is DocumentableKind.CONSTANT or doc.kind is DocumentableKind.VARIABLE or doc.kind is DocumentableKind.TYPE_ALIAS or doc.kind is DocumentableKind.TYPE_VARIABLE or doc.kind is DocumentableKind.CLASS_VARIABLE:
+      serialize_attribute(obj, doc)
 
     json_arr.append(obj)
 

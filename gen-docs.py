@@ -3,7 +3,7 @@ from pydoctor.model import Options, Documentable, DocumentableKind, Class, Funct
 from pydoctor import epydoc2stan
 from pydoctor.epydoc.markup._pyval_repr import colorize_pyval, colorize_inline_pyval
 from pathlib import Path
-from inspect import Parameter, Signature, _PARAM_NAME_MAPPING
+from inspect import Parameter, Signature
 from typing import List
 import json
 import os

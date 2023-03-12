@@ -72,7 +72,7 @@ def build_json(json_arr, documentables: List[Documentable]):
       obj["docstring"] = {
         "fields": list(map(serialize_docstring_field, doc.parsed_docstring.fields))
       }
-      if doc.parsed_docstring.has_body():
+      if doc.parsed_docstring.has_body:
         obj["docstring"]["summary"] = doc.parsed_docstring.get_summary().to_node().astext()        
 
     if doc.parent is not None:

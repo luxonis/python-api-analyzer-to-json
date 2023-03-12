@@ -2,6 +2,7 @@ from pydoctor.driver import get_system
 from pydoctor.model import Options, Documentable, DocumentableKind, Class, Function, Attribute
 from pydoctor import epydoc2stan
 from pydoctor.epydoc.markup._pyval_repr import colorize_pyval, colorize_inline_pyval
+from pydoctor.epydoc.markup import Field
 from pathlib import Path
 from inspect import Parameter, Signature
 from typing import List
@@ -47,6 +48,15 @@ def serialize_function(obj, func: Function):
   if func.signature.return_annotation is not Signature.empty:
     obj["signature"]["return_annotation"] = serialize_parameter(func.signature.return_annotation)
 
+def serialize_docstring_field(field: Field):
+  obj = {
+    "name": field.tag(),
+    "body": field.body().to_node().astext(),
+  }
+  if field.arg() is not None:
+    obj["arg"] = field.arg()
+  return obj
+
 def build_json(json_arr, documentables: List[Documentable]):
   for doc in documentables:
     obj = {
@@ -57,6 +67,13 @@ def build_json(json_arr, documentables: List[Documentable]):
       "is_private": doc.isPrivate,
       "children": [],
     }
+
+    if doc.parsed_docstring is not None:
+      obj["docstring"] = {
+        "fields": list(map(serialize_docstring_field, doc.parsed_docstring.fields))
+      }
+      if doc.parsed_docstring.has_body():
+        obj["docstring"]["summary"] = doc.parsed_docstring.get_summary().to_node().astext()        
 
     if doc.parent is not None:
       obj["parent"] = doc.parent.fullName()

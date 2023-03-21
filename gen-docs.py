@@ -1,6 +1,6 @@
 from pydoctor.driver import get_system
 from pydoctor.model import Options, Documentable, DocumentableKind, Class, Function, Attribute
-from pydoctor import epydoc2stan
+from pydoctor.epydoc.markup.epytext import parse_docstring
 from pydoctor.epydoc.markup._pyval_repr import colorize_pyval, colorize_inline_pyval
 from pydoctor.epydoc.markup import Field
 from pathlib import Path
@@ -67,6 +67,9 @@ def build_json(json_arr, documentables: List[Documentable]):
       "is_private": doc.isPrivate,
       "children": [],
     }
+
+    if (doc.parsed_docstring is None) and (doc.docstring is not None):
+      doc.parsed_docstring = parse_docstring(doc.docstring, [])
 
     if doc.parsed_docstring is not None:
       obj["docstring"] = {

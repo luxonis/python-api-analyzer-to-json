@@ -77,6 +77,7 @@ def build_json(json_arr, documentables: List[Documentable]):
       }
       if doc.parsed_docstring.has_body:
         obj["docstring"]["summary"] = doc.parsed_docstring.get_summary().to_node().astext()        
+        obj["docstring"]["all"] = doc.parsed_docstring.to_node().astext()        
 
     if doc.parent is not None:
       obj["parent"] = doc.parent.fullName()

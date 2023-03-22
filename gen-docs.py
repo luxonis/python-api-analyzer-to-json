@@ -1,6 +1,6 @@
 from pydoctor.driver import get_system
 from pydoctor.model import Options, Documentable, DocumentableKind, Class, Function, Attribute
-from pydoctor import epydoc2stan
+from pydoctor.epydoc.markup.epytext import parse_docstring
 from pydoctor.epydoc.markup._pyval_repr import colorize_pyval, colorize_inline_pyval
 from pydoctor.epydoc.markup import Field
 from pathlib import Path
@@ -68,12 +68,16 @@ def build_json(json_arr, documentables: List[Documentable]):
       "children": [],
     }
 
+    if (doc.parsed_docstring is None) and (doc.docstring is not None):
+      doc.parsed_docstring = parse_docstring(doc.docstring, [])
+
     if doc.parsed_docstring is not None:
       obj["docstring"] = {
         "fields": list(map(serialize_docstring_field, doc.parsed_docstring.fields))
       }
       if doc.parsed_docstring.has_body:
         obj["docstring"]["summary"] = doc.parsed_docstring.get_summary().to_node().astext()        
+        obj["docstring"]["all"] = doc.parsed_docstring.to_node().astext()        
 
     if doc.parent is not None:
       obj["parent"] = doc.parent.fullName()

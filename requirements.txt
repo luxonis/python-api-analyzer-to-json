@@ -1,1 +1,1 @@
-pydoctor==22.9.1
+pydoctor==23.4.0

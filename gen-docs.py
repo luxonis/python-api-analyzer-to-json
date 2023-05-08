@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from inspect import Parameter, Signature
 from pathlib import Path
 from typing import List
@@ -12,8 +13,7 @@ from pydoctor.model import Options, Documentable, DocumentableKind, Class, Funct
 
 opts = Options.defaults()
 opts.projectbasedirectory = os.getcwd()
-# opts.sourcepath = [Path(os.path.join(os.getcwd(), sys.argv[1]))]
-opts.sourcepath = [Path(os.path.join(os.getcwd(), "./api/src/robothub"))]
+opts.sourcepath = [Path(os.path.join(os.getcwd(), sys.argv[1]))]
 system = get_system(opts)
 
 

@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sys
 from inspect import Parameter, Signature
 from pathlib import Path
@@ -17,6 +18,16 @@ opts.sourcepath = [Path(os.path.join(os.getcwd(), sys.argv[1]))]
 system = get_system(opts)
 
 
+def remove_html_tags(text):
+    clean = re.compile('<.*?>')
+    return re.sub(clean, '', text)
+
+
+def serialize_annotation(annotation: str):
+    # annotation == <code>{annotation_type}</code>
+    return annotation.replace("<code>", "").replace("</code>", "")
+
+
 def serialize_parameter(parameter: Parameter):
     data = {
         "name": parameter.name,
@@ -25,15 +36,12 @@ def serialize_parameter(parameter: Parameter):
 
     if parameter.annotation is not Parameter.empty:
         data["type"] = colorize_inline_pyval(parameter.annotation).to_node().astext()
+        data["type"] = remove_html_tags(data["type"])
     if parameter.default is not Parameter.empty:
         data["default"] = colorize_inline_pyval(parameter.default).to_node().astext()
+        data["default"] = remove_html_tags(data["default"])
 
     return data
-
-
-def serialize_return_annotation(annotation: str):
-    # annotation == <code>{annotation_type}</code>
-    return annotation.replace("<code>", "").replace("</code>", "")
 
 
 def serialize_attribute(obj, attr: Attribute):
@@ -56,7 +64,14 @@ def serialize_function(obj, func: Function):
         "parameters": list(map(serialize_parameter, func.signature.parameters.values()))
     }
     if func.signature.return_annotation is not Signature.empty:
-        obj["signature"]["return_annotation"] = serialize_return_annotation(str(func.signature.return_annotation))
+        return_annotation = serialize_annotation(str(func.signature.return_annotation))
+        pattern = r'(?:<a[^>]*>)?(?P<name>[A-Za-z_][A-Za-z0-9_]*)(?:</a>)?'
+        match = re.search(pattern, return_annotation)
+        if match:
+            extracted_text = match.group("name")
+            obj["signature"]["return_annotation"] = extracted_text
+        else:
+            obj["signature"]["return_annotation"] = "None"
 
 
 def serialize_docstring_field(field: Field):
@@ -81,6 +96,7 @@ def build_json(json_arr, documentables: List[Documentable]):
         }
 
         if (doc.parsed_docstring is None) and (doc.docstring is not None):
+            # print(doc.docstring)
             doc.parsed_docstring = parse_docstring(doc.docstring, [])
 
         if doc.parsed_docstring is not None:

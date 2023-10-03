@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import sys
 from inspect import Parameter, Signature
 from pathlib import Path
 from typing import List
@@ -95,6 +96,7 @@ def build_json(json_arr, documentables: List[Documentable]):
         }
 
         if (doc.parsed_docstring is None) and (doc.docstring is not None):
+            # print(doc.docstring)
             doc.parsed_docstring = parse_docstring(doc.docstring, [])
 
         if doc.parsed_docstring is not None:
